@@ -19,7 +19,7 @@ Eigen::Matrix4f get_view_matrix(Eigen::Vector3f eye_pos)
     return view;
 }
 
-Eigen::Matrix4f get_model_matrix(float rotation_angle)
+Eigen::Matrix4f get_model_matrix(float angle_x, float angle_y, float angle_z)
 {
     Eigen::Matrix4f model = Eigen::Matrix4f::Identity();
 
@@ -28,12 +28,25 @@ Eigen::Matrix4f get_model_matrix(float rotation_angle)
     // Then return it.
 
     // Asume that the rotation_angle is given in degrees
-    float angle_rad = rotation_angle * MY_PI / 180.0;
-    model << cos(angle_rad), -sin(angle_rad), 0, 0,
-             sin(angle_rad),  cos(angle_rad), 0, 0,
+    float angle_x_rad = angle_x * MY_PI / 180.0;
+    float angle_y_rad = angle_y * MY_PI / 180.0;
+    float angle_z_rad = angle_z * MY_PI / 180.0;
+
+
+    Eigen::Matrix4f rotation_x, rotation_y, rotation_z;
+    rotation_x << 1,              0,               0, 0,
+                  0, cos(angle_x_rad), -sin(angle_x_rad), 0,
+                  0, sin(angle_x_rad),  cos(angle_x_rad), 0,
+                  0,              0,               0, 1;
+    rotation_y <<  cos(angle_y_rad), 0, sin(angle_y_rad), 0,
+                          0, 1,              0, 0,
+                -sin(angle_y_rad), 0, cos(angle_y_rad), 0,
+                          0, 0,              0, 1;
+    rotation_z << cos(angle_z_rad), -sin(angle_z_rad), 0, 0,
+             sin(angle_z_rad),  cos(angle_z_rad), 0, 0,
                          0,              0, 1, 0,
                          0,              0, 0, 1;
-
+    model = rotation_z * rotation_y * rotation_x;
     return model;
 }
 
@@ -58,13 +71,15 @@ Eigen::Matrix4f get_projection_matrix(float eye_fov, float aspect_ratio,
 
 int main(int argc, const char** argv)
 {
-    float angle = 0;
+    float angle_z = 0;
+    float angle_x = 0;
+    float angle_y = 0;
     bool command_line = false;
     std::string filename = "output.png";
 
     if (argc >= 3) {
         command_line = true;
-        angle = std::stof(argv[2]); // -r by default
+        angle_z = std::stof(argv[2]); // -r by default
         if (argc == 4) {
             filename = std::string(argv[3]);
         }
@@ -83,13 +98,32 @@ int main(int argc, const char** argv)
     auto pos_id = r.load_positions(pos);
     auto ind_id = r.load_indices(ind);
 
+    // compute triangle centroid so we can rotate around the triangle's center
+    Eigen::Vector3f centroid = (pos[0] + pos[1] + pos[2]) / 3.0f;
+
     int key = 0;
     int frame_count = 0;
 
     if (command_line) {
         r.clear(rst::Buffers::Color | rst::Buffers::Depth);
 
-        r.set_model(get_model_matrix(angle));
+        // rotate around the triangle centroid: translate to origin -> rotate -> translate back
+        {
+            Eigen::Matrix4f rotation = get_model_matrix(angle_x, angle_y, angle_z);
+            Eigen::Matrix4f translate_to_origin = Eigen::Matrix4f::Identity();
+            Eigen::Matrix4f translate_back = Eigen::Matrix4f::Identity();
+            translate_to_origin << 1, 0, 0, -centroid[0],
+                                  0, 1, 0, -centroid[1],
+                                  0, 0, 1, -centroid[2],
+                                  0, 0, 0, 1;
+            translate_back << 1, 0, 0, centroid[0],
+                             0, 1, 0, centroid[1],
+                             0, 0, 1, centroid[2],
+                             0, 0, 0, 1;
+
+            Eigen::Matrix4f model = translate_back * rotation * translate_to_origin;
+            r.set_model(model);
+        }
         r.set_view(get_view_matrix(eye_pos));
         r.set_projection(get_projection_matrix(45, 1, 0.1, 50));
 
@@ -105,7 +139,23 @@ int main(int argc, const char** argv)
     while (key != 27) {
         r.clear(rst::Buffers::Color | rst::Buffers::Depth);
 
-        r.set_model(get_model_matrix(angle));
+        // rotate around the triangle centroid: translate to origin -> rotate -> translate back
+        {
+            Eigen::Matrix4f rotation = get_model_matrix(angle_x, angle_y, angle_z);
+            Eigen::Matrix4f translate_to_origin = Eigen::Matrix4f::Identity();
+            Eigen::Matrix4f translate_back = Eigen::Matrix4f::Identity();
+            translate_to_origin << 1, 0, 0, -centroid[0],
+                                  0, 1, 0, -centroid[1],
+                                  0, 0, 1, -centroid[2],
+                                  0, 0, 0, 1;
+            translate_back << 1, 0, 0, centroid[0],
+                             0, 1, 0, centroid[1],
+                             0, 0, 1, centroid[2],
+                             0, 0, 0, 1;
+
+            Eigen::Matrix4f model = translate_back * rotation * translate_to_origin;
+            r.set_model(model);
+        }
         r.set_view(get_view_matrix(eye_pos));
         r.set_projection(get_projection_matrix(45, 1, 0.1, 50));
 
@@ -118,11 +168,23 @@ int main(int argc, const char** argv)
 
         std::cout << "frame count: " << frame_count++ << '\n';
 
-        if (key == 'a') {
-            angle += 10;
+        if (key == 'q') {
+            angle_z += 10;
+        }
+        else if (key == 'e') {
+            angle_z -= 10;
+        }
+        else if (key == 's') {
+            angle_x -= 10;
+        }
+        else if (key == 'w') {
+            angle_x += 10;
+        }
+        else if (key == 'a') {
+            angle_y -= 10;
         }
         else if (key == 'd') {
-            angle -= 10;
+            angle_y += 10;
         }
     }
 

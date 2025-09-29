@@ -6,16 +6,6 @@
 
 #IncludeRegexTransform: 
 
-/home/graphics/GAMES101-Assignments/assignment1/codes/Triangle.cpp
-Triangle.hpp
-/home/graphics/GAMES101-Assignments/assignment1/codes/Triangle.hpp
-algorithm
--
-array
--
-stdexcept
--
-
 /home/graphics/GAMES101-Assignments/assignment1/codes/Triangle.hpp
 eigen3/Eigen/Eigen
 -
@@ -30,18 +20,6 @@ eigen3/Eigen/Eigen
 iostream
 -
 opencv2/opencv.hpp
--
-
-/home/graphics/GAMES101-Assignments/assignment1/codes/rasterizer.cpp
-algorithm
--
-rasterizer.hpp
-/home/graphics/GAMES101-Assignments/assignment1/codes/rasterizer.hpp
-opencv2/opencv.hpp
--
-math.h
--
-stdexcept
 -
 
 /home/graphics/GAMES101-Assignments/assignment1/codes/rasterizer.hpp
