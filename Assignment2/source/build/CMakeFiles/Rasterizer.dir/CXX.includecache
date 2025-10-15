@@ -12,17 +12,17 @@ eigen3/Eigen/Eigen
 
 /home/graphics/GAMES101-Assignments/Assignment2/source/global.hpp
 
-/home/graphics/GAMES101-Assignments/Assignment2/source/main.cpp
-iostream
+/home/graphics/GAMES101-Assignments/Assignment2/source/rasterizer.cpp
+algorithm
 -
-opencv2/opencv.hpp
+vector
 -
 rasterizer.hpp
 /home/graphics/GAMES101-Assignments/Assignment2/source/rasterizer.hpp
-global.hpp
-/home/graphics/GAMES101-Assignments/Assignment2/source/global.hpp
-Triangle.hpp
-/home/graphics/GAMES101-Assignments/Assignment2/source/Triangle.hpp
+opencv2/opencv.hpp
+-
+math.h
+-
 
 /home/graphics/GAMES101-Assignments/Assignment2/source/rasterizer.hpp
 eigen3/Eigen/Eigen
