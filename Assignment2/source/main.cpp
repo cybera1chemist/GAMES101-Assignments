@@ -39,14 +39,15 @@ Eigen::Matrix4f get_projection_matrix(float eye_fov, float aspect_ratio, float z
 
     projection <<   n/r, 0, 0, 0,
                     0, n/t, 0, 0,
-                    0, 0, (n+f)/(n-f), (2*n*f)/(n-f);
-                    0, 0, 0, 1;
+                    0, 0, (n+f)/(n-f), (2*n*f)/(f-n),
+                    0, 0, -1, 0;
 
     return projection;
 }
 
 int main(int argc, const char** argv)
 {
+    printf("\nProgram start!\n");
     float angle = 0;
     bool command_line = false;
     std::string filename = "output.png";
